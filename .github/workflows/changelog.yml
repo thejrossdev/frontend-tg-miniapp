@@ -13,7 +13,7 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Force Node.js 24
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false  # Don't allow insecure versions
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Need full history to get tags
 
