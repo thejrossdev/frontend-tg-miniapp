@@ -35,77 +35,38 @@ jobs:
           script: |
             const fs = require('fs');
             const pr = context.payload.pull_request;
-            const currentDate = '${{ steps.date.outputs.date }}';
+            const date = '${{ steps.date.outputs.date }}';
 
-            // Prepare changelog entry
-            const changelogEntry = `
-            ## [PR #${pr.number}] - ${currentDate.split(' ')[0]}
+            // Create clean changelog entry
+            const changelogEntry = `## [PR #${pr.number}] - ${date}\n\n### ${pr.title}\n\n${pr.body || '*No description provided*'}\n\n**Author:** @${pr.user.login}\n**Changed files:** ${pr.changed_files}\n**Commits:** ${pr.commits}\n\n---\n\n`;
 
-            ### ${pr.title}
-
-            ${pr.body || '*No description provided*'}
-
-            **Author:** @${pr.user.login}
-            **Labels:** ${pr.labels.map(l => l.name).join(', ') || 'None'}
-            **Changed files:** ${pr.changed_files}
-            **Commits:** ${pr.commits}
-
-            ---
-            `;
-
-            // Update CHANGELOG.md file
             const changelogPath = 'CHANGELOG.md';
-            let existingContent = '';
+            let content = '# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n';
 
             try {
-              existingContent = fs.readFileSync(changelogPath, 'utf8');
-            } catch (error) {
-              // File doesn't exist, create with header
-              existingContent = `# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n`;
-            }
-
-            // Check if entry already exists (avoid duplicates)
-            if (!existingContent.includes(`## [PR #${pr.number}]`)) {
-              // Insert new entry at the top (after header)
-              let newContent;
-              if (existingContent.startsWith('# Changelog')) {
-                const lines = existingContent.split('\n');
-                const headerEnd = lines.findIndex(line => line.startsWith('## ') || (line.trim() === '' && lines.indexOf(line) > 2));
-                if (headerEnd === -1) {
-                  newContent = existingContent + '\n' + changelogEntry;
-                } else {
-                  lines.splice(headerEnd, 0, changelogEntry);
-                  newContent = lines.join('\n');
+              const existing = fs.readFileSync(changelogPath, 'utf8');
+              if (!existing.includes(`## [PR #${pr.number}]`)) {
+                // Insert after header
+                const lines = existing.split('\n');
+                let insertIndex = 0;
+                for (let i = 0; i < lines.length; i++) {
+                  if (lines[i].startsWith('# Changelog')) {
+                    insertIndex = i + 2; // After title and empty line
+                    break;
+                  }
                 }
+                lines.splice(insertIndex, 0, changelogEntry);
+                content = lines.join('\n');
               } else {
-                newContent = '# Changelog\n\n' + changelogEntry + '\n' + existingContent;
+                content = existing;
+                console.log(`⚠️ PR #${pr.number} already in CHANGELOG.md`);
               }
-
-              fs.writeFileSync(changelogPath, newContent);
-              console.log(`✅ CHANGELOG.md updated with PR #${pr.number}`);
-            } else {
-              console.log(`⚠️ Entry for PR #${pr.number} already exists in CHANGELOG.md`);
+            } catch (error) {
+              content = '# Changelog\n\n' + changelogEntry;
             }
 
-            // Create comment on PR
-            const commentBody = `
-            ## 📝 Changelog Generated
-
-            ${changelogEntry}
-
-            ✅ **CHANGELOG.md has been updated with this PR information.**
-
-            📄 See the full changelog after merge.
-            `;
-
-            await github.rest.issues.createComment({
-              issue_number: pr.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: commentBody
-            });
-
-            console.log(`✅ Comment added to PR #${pr.number}`);
+            fs.writeFileSync(changelogPath, content);
+            console.log(`✅ CHANGELOG.md updated with PR #${pr.number}`);
 
       # Commit and push CHANGELOG.md changes
       - name: Commit CHANGELOG.md
