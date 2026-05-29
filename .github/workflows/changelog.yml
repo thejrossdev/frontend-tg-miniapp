@@ -70,7 +70,7 @@ jobs:
 
       # Commit and push CHANGELOG.md changes
       - name: Commit CHANGELOG.md
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "docs: update CHANGELOG.md for PR #${{ github.event.pull_request.number }}"
           file_pattern: CHANGELOG.md
