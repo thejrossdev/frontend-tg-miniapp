@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          token: ${{ secrets.CHANGE_LOG }}
           fetch-depth: 0  # Need full history to get tags
 
       # Get current date
@@ -30,6 +31,7 @@ jobs:
       - name: Create PR Changelog Comment and Update CHANGELOG.md
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.CHANGE_LOG }}
           script: |
             const fs = require('fs');
             const pr = context.payload.pull_request;
