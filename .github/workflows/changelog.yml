@@ -9,8 +9,104 @@ jobs:
   changelog:
     name: Chanegelog Generator
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Force Node.js 24
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false  # Don't allow insecure versions
     steps:
-      - uses: actions/checkout@v2
-      - uses: etcdigital/pull-request-changelog@master
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.CHANGE_LOG }}
+          fetch-depth: 0  # Need full history to get tags
+
+      # Get current date
+      - name: Get current date
+        id: date
+        run: echo "date=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+
+      # Create/Update CHANGELOG.md and comment on PR
+      - name: Create PR Changelog Comment and Update CHANGELOG.md
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const pr = context.payload.pull_request;
+            const currentDate = '${{ steps.date.outputs.date }}';
+
+            // Prepare changelog entry
+            const changelogEntry = `
+            ## [PR #${pr.number}] - ${currentDate.split(' ')[0]}
+
+            ### ${pr.title}
+
+            ${pr.body || '*No description provided*'}
+
+            **Author:** @${pr.user.login}
+            **Labels:** ${pr.labels.map(l => l.name).join(', ') || 'None'}
+            **Changed files:** ${pr.changed_files}
+            **Commits:** ${pr.commits}
+
+            ---
+            `;
+
+            // Update CHANGELOG.md file
+            const changelogPath = 'CHANGELOG.md';
+            let existingContent = '';
+
+            try {
+              existingContent = fs.readFileSync(changelogPath, 'utf8');
+            } catch (error) {
+              // File doesn't exist, create with header
+              existingContent = `# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n`;
+            }
+
+            // Check if entry already exists (avoid duplicates)
+            if (!existingContent.includes(`## [PR #${pr.number}]`)) {
+              // Insert new entry at the top (after header)
+              let newContent;
+              if (existingContent.startsWith('# Changelog')) {
+                const lines = existingContent.split('\n');
+                const headerEnd = lines.findIndex(line => line.startsWith('## ') || (line.trim() === '' && lines.indexOf(line) > 2));
+                if (headerEnd === -1) {
+                  newContent = existingContent + '\n' + changelogEntry;
+                } else {
+                  lines.splice(headerEnd, 0, changelogEntry);
+                  newContent = lines.join('\n');
+                }
+              } else {
+                newContent = '# Changelog\n\n' + changelogEntry + '\n' + existingContent;
+              }
+
+              fs.writeFileSync(changelogPath, newContent);
+              console.log(`✅ CHANGELOG.md updated with PR #${pr.number}`);
+            } else {
+              console.log(`⚠️ Entry for PR #${pr.number} already exists in CHANGELOG.md`);
+            }
+
+            // Create comment on PR
+            const commentBody = `
+            ## 📝 Changelog Generated
+
+            ${changelogEntry}
+
+            ✅ **CHANGELOG.md has been updated with this PR information.**
+
+            📄 See the full changelog after merge.
+            `;
+
+            await github.rest.issues.createComment({
+              issue_number: pr.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
+
+            console.log(`✅ Comment added to PR #${pr.number}`);
+
+      # Commit and push CHANGELOG.md changes
+      - name: Commit CHANGELOG.md
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update CHANGELOG.md for PR #${{ github.event.pull_request.number }}"
+          file_pattern: CHANGELOG.md
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
+          commit_author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
