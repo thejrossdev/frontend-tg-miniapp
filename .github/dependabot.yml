@@ -1,0 +1,83 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  # npm/pnpm dependencies updates
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Moscow"
+    versioning-strategy: "auto"
+    labels:
+      - "dependencies"
+      - "automated-pr"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore(dev)"
+      include: "scope"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "therossdev"
+    # Group related updates to reduce number of PRs
+    groups:
+      # Next.js and related packages
+      nextjs:
+        patterns:
+          - "next"
+          - "eslint-config-next"
+        update-types:
+          - "minor"
+          - "patch"
+      # React and type definitions
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      # Telegram/TON packages
+      telegram-ton:
+        patterns:
+          - "@telegram-apps/*"
+          - "@tma.js/*"
+          - "@tonconnect/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Formatting tools and plugins
+      prettier-plugins:
+        patterns:
+          - "prettier-*"
+          - "prettier-plugin-*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Ignore major version updates for critical packages
+    ignore:
+      - dependency-name: "next"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "react"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "react-dom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "@types/react"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "@types/react-dom"
+        update-types: [ "version-update:semver-major" ]
+    rebase-strategy: "auto"
+
+  # GitHub Actions updates (if you use them)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "ci-cd"
+      - "dependencies"
+    commit-message:
+      prefix: "ci"
