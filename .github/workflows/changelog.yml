@@ -9,6 +9,10 @@ jobs:
   changelog:
     name: Chanegelog Generator
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Force Node.js 24
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false  # Don't allow insecure versions
