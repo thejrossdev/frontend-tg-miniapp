@@ -1,0 +1,5 @@
+.header {
+	z-index: 100;
+	border-bottom: 1px solid color-mix(in srgb, var(--tgui--subtitle_text_color) 20%, transparent);
+	background: var(--tgui--header_bg_color);
+}

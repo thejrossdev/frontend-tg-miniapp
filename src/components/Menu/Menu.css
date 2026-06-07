@@ -1,0 +1,40 @@
+.main-menu {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-around;
+  position: relative;
+  gap: 8px;
+  color: var(--tgui--subtitle_text_color);
+}
+.main-menu__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.main-menu__link {
+  position: relative;
+  width: 100%;
+  padding: 12px 5px;
+  transition: 0.5s ease-in-out;
+}
+.main-menu .link {
+  margin: 0;
+}
+.main-menu .link > :not(:last-child) {
+  margin: 0;
+}
+.main-menu .link__active {
+  color: var(--tgui--accent_text_color);
+}
+.main-menu .link__active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--tgui--accent_text_color);
+}
+
+/*# sourceMappingURL=Menu.css.map */

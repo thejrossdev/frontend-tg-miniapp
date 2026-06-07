@@ -1,14 +1,17 @@
 import { openLink } from '@tma.js/sdk-react';
-import { type LinkProps as NextLinkProps, default as NextLink } from 'next/link';
+import { default as NextLink, type LinkProps as NextLinkProps } from 'next/link';
 import { type FC, type JSX, type MouseEventHandler, useCallback } from 'react';
 
 import { classNames } from '@/css/classnames';
 
+import { usePathname } from 'next/navigation';
 import './Link.css';
 
-export interface LinkProps extends NextLinkProps, Omit<JSX.IntrinsicElements['a'], 'href'> {}
+export interface LinkProps extends NextLinkProps, Omit<JSX.IntrinsicElements['a'], 'href'> {
+	exact?: boolean;
+}
 
-export const Link: FC<LinkProps> = ({ className, onClick: propsOnClick, href, ...rest }) => {
+export const Link: FC<LinkProps> = ({ className, onClick: propsOnClick, href, exact = false, ...rest }) => {
 	const onClick = useCallback<MouseEventHandler<HTMLAnchorElement>>(
 		(e) => {
 			propsOnClick?.(e);
@@ -35,5 +38,15 @@ export const Link: FC<LinkProps> = ({ className, onClick: propsOnClick, href, ..
 		[href, propsOnClick],
 	);
 
-	return <NextLink {...rest} href={href} onClick={onClick} className={classNames(className, 'link')} />;
+	const pathname = usePathname();
+	const isActive = exact ? pathname === href : pathname.startsWith(href.toString());
+
+	return (
+		<NextLink
+			{...rest}
+			href={href}
+			onClick={onClick}
+			className={classNames(className, 'link', isActive ? 'link__active' : '')}
+		/>
+	);
 };

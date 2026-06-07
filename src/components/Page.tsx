@@ -1,34 +1,23 @@
 'use client';
 
-import { backButton } from '@tma.js/sdk-react';
-import { useRouter } from 'next/navigation';
-import { PropsWithChildren, useEffect } from 'react';
+import Footer from '@/components/Footer/Footer';
+import { Header } from '@/components/Header/Header';
+import { PropsWithChildren } from 'react';
 
-export function Page({
-	children,
-	back = true,
-}: PropsWithChildren<{
+export interface PageProps extends PropsWithChildren<{
 	/**
 	 * True if it is allowed to go back from this page.
 	 * @default true
 	 */
 	back?: boolean;
-}>) {
-	const router = useRouter();
+}> {}
 
-	useEffect(() => {
-		if (back) {
-			backButton.show();
-		} else {
-			backButton.hide();
-		}
-	}, [back]);
-
-	useEffect(() => {
-		return backButton.onClick(() => {
-			router.back();
-		});
-	}, [router]);
-
-	return <>{children}</>;
+export function Page({ children, back = true }: PageProps) {
+	return (
+		<>
+			<Header back={back} />
+			<main className="content flex-1 overflow-y-auto">{children}</main>
+			<Footer />
+		</>
+	);
 }

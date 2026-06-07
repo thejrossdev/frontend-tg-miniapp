@@ -1,3 +1,4 @@
+import { RootInner } from '@/components/Root/Root';
 import { useEffect } from 'react';
 
 export function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset?: () => void }) {
@@ -7,12 +8,21 @@ export function ErrorPage({ error, reset }: { error: Error & { digest?: string }
 	}, [error]);
 
 	return (
-		<div>
-			<h2>An unhandled error occurred!</h2>
-			<blockquote>
-				<code>{error.message}</code>
-			</blockquote>
-			{reset && <button onClick={() => reset()}>Try again</button>}
-		</div>
+		<RootInner>
+			<div className={'min-h-screen min-w-screen flex flex-col justify-center items-center p-6'}>
+				<h2>An unhandled error occurred!</h2>
+				<blockquote className={'mt-4 text-center'}>
+					<code>{error.message}</code>
+				</blockquote>
+				<blockquote className={'mt-4 text-center'}>
+					<code>{error.name}</code>
+				</blockquote>
+				{reset && (
+					<button className={'mt-4'} onClick={() => reset()}>
+						Try again
+					</button>
+				)}
+			</div>
+		</RootInner>
 	);
 }
