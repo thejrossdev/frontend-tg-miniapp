@@ -1,1 +1,20 @@
-{}
+{
+	"menu": {
+		"subscription": "Subscription",
+		"support": "Support",
+		"profile": "Profile"
+	},
+	"subscribe": {
+		"none": "",
+		"title": "{name} subscribe",
+		"date": "",
+		"create": "",
+		"status": {
+			"active": "",
+			"suspend": "",
+			"expire": ""
+		},
+		"renew": ""
+	},
+	"greeting": "Hi, {name}"
+}
