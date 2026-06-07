@@ -1,0 +1,12 @@
+body {
+	background: var(--tgui--secondary_bg_color, white);
+	padding: 0;
+	margin: 0;
+}
+
+.content {
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.tgui-389a43acd684137a>:not(:last-child){margin-bottom:0}

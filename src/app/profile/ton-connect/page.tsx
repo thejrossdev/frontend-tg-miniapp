@@ -17,7 +17,7 @@ export default function TONConnectPage() {
 
 	if (!wallet) {
 		return (
-			<Page>
+			<Page back={true}>
 				<Placeholder
 					className={e('placeholder')}
 					header="TON Connect"
@@ -40,7 +40,7 @@ export default function TONConnectPage() {
 	} = wallet;
 
 	return (
-		<Page>
+		<Page back={true}>
 			<List>
 				{'imageUrl' in wallet && (
 					<>
